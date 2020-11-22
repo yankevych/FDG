@@ -1,0 +1,81 @@
+version: '1'
+volumes:
+  pgdata:
+  static:
+  media:
+  web-root:
+  certbot-etc:
+  certbot-var:
+  migrations:
+services:
+  python: &python
+    build:
+      context: .
+      dockerfile: docker/python/Dockerfile
+    environment:
+      - DJANGO_SETTINGS_MODULE=project_FDG.settings
+    volumes:
+      - static:/static
+      - media:/media
+      - web-root:/var/www/html
+      - migrations:/administrator/migrations
+    ports:
+      - 8000:8000
+    command: gunicorn -w 4 project_FDG.wsgi -b 0.0.0.0:8000
+  postgres:
+    image: postgres:12.4
+    environment:
+      POSTGRES_USER: project_FDG_USER
+      POSTGRES_DB: project_FDG_DB
+      POSTGRES_PASSWORD: project_FDG_PASS
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/:/docker-entrypoint-initdb.d
+    ports:
+      - 5430:5430
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    volumes:
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+      - web-root:/var/www/html
+      - ./docker/nginx:/etc/nginx/conf.d
+      - static:/static
+      - media:/media
+    ports:
+      - 80:80
+      - 443:443
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+      - web-root:/var/www/html
+    depends_on:
+      - nginx
+    command: certonly --webroot --webroot-path=/var/www/html --email maksym.yankevych@gmail.com --agree-tos --no-eff-email -d abotscosmetics.tk
+#    command: renew --dry-run
+
+  redis:
+    image: redis:latest
+    restart: always
+    volumes:
+      - ./docker/redis/etc/redis.conf:/data/redis/redis.conf
+    ports:
+      - '6379:6379'
+    command: redis-server /data/redis/redis.conf
+
+  celery_worker:
+    <<: *python
+    command: celery -A project_FDG worker --loglevel=info
+    ports: []
+    restart: always
+    depends_on:
+      - redis
+      - postgres
+
+
+
