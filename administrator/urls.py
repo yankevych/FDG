@@ -29,7 +29,5 @@ urlpatterns = [
     path('delete_schema/', views.delete_schema, name="delete_schema"),
     path('add_column/', views.add_column, name="add_column"),
     path('delete_column/', views.delete_column, name="delete_column"),
-    path('generate/', views.generate, name="generate"),
     path('download/', views.download_data_set, name="download_data_set"),
-
 ]

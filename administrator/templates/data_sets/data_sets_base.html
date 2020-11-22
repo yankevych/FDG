@@ -5,7 +5,7 @@
 
 {% block content %}
 
-<form class="container" action="../../generate/" method="POST">
+<form class="container" action="../../data_sets/{{schema.pk}}/" method="POST">
     {% csrf_token %}
 <div class="container">
     <div class="row">
@@ -17,8 +17,6 @@
         </div>
         <div class="col-sm">
             <p>Rows:</p>
-        </div>
-        <div class="col-sm">
             <input type="text" class="form-control" id="Rows" name="schema_rows" required="">
         </div>
         <div class="col-sm">
@@ -44,9 +42,23 @@
   {% for i in data_sets %}
     <tr>
       <th scope="row"> {{i.pk}}</th>
-      <td>{{i.created}}</td>
-      <td>{{i.status}}</td>
-      <td>
+        <td>{{i.created}}</td>
+            {% if i.status == 'Ready' %}
+          <td>
+              <p class="btn btn-success">{{i.status}}</p>
+          </td>
+            {% endif %}
+            {% if i.status == 'Processing' %}
+          <td>
+              <p class="btn btn-secondary">{{i.status}}</p>
+          </td>
+            {% endif %}
+            {% if i.status == 'Create' %}
+          <td>
+              <p class="btn btn-light">{{i.status}}</p>
+          </td>
+            {% endif %}
+          <td>
           {% if i.status == 'Ready' %}
          <form action="../../download/" method="post">
            {% csrf_token %}

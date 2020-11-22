@@ -1,12 +1,22 @@
+from __future__ import absolute_import, unicode_literals
+
 import csv
 import random
-from .models import ColumnItem
+
+from project_FDG.celery import app
+from .models import ColumnItem, Schema, DataSet
 from faker import Faker
 
 
-def aggregate_schema(rows, data_set, schema):
+@app.task
+def aggregate_schema(*args):
     """method that first catch all data to start generate data"""
-    print(rows)
+    print(args)
+    rows, data_set_pk, schema_pk = args
+
+    schema = Schema.objects.get(pk=schema_pk)
+    data_set = DataSet.objects.get(pk=data_set_pk)
+
     if schema.column_separator == 'Comma (,)':
         delimiter = ','
     else:
@@ -42,9 +52,8 @@ def aggregate_schema(rows, data_set, schema):
 
             fakewriter.writerow(row_list)
             i += 1
-
-    data_set.status = 'Ready'
     data_set.file_name = f'{schema.name}_{schema.pk}_{data_set.pk}.csv'
-    data_set.save()
+    data_set.status = 'Ready'
 
-
+    return data_set.save()
+    # return requests.post('http://127.0.0.1:8000/gen_ready/', data={'data_set_pk': data_set.pk})

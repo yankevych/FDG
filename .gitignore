@@ -2,6 +2,7 @@ __pycache__/
 *.zip
 fdg_env/
 media/
+admistrator/migrations/
 
 
 

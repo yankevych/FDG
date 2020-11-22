@@ -38,6 +38,9 @@ class ColumnItem(models.Model):
     range_from = models.PositiveIntegerField(null=True, blank=True, default=0)
     range_to = models.PositiveIntegerField(null=True, blank=True, default=2147483647)
 
+    class Meta:
+        ordering = ['order']
+
 
 class DataSet(models.Model):
     """model that contain data-sets"""

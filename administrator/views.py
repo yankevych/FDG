@@ -1,9 +1,9 @@
 import mimetypes
 
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from .models import Schema, ColumnItem, DataSet
-from .generator import aggregate_schema
+from .tasks import aggregate_schema
 
 COLUMNS = [i[1] for i in Schema.SEPARATORS]
 STRINGS = [i[1] for i in Schema.STRINGS]
@@ -13,6 +13,7 @@ STATUSES = [i[1] for i in DataSet.STATUS]
 
 
 def schema_view(request):
+    """first menu view"""
     schema_list = Schema.objects.all()
     name = request.user.username
     return render(request, 'schema/schema_base.html', {
@@ -22,8 +23,24 @@ def schema_view(request):
 
 
 def data_set_view(request, schema_pk):
+    """data set view when send generation and GET when reload page"""
     name = request.user.username
-    schema = Schema.objects.get(pk=schema_pk)
+
+    if request.method == 'POST':
+        print(request.POST)
+        rows = request.POST['schema_rows']
+        schema_id = request.POST['schema_id']
+        schema = Schema.objects.get(pk=int(schema_id))
+
+        data_set = DataSet.objects.create(schema=schema, status='Create', rows=rows)
+
+        aggregate_schema.delay(rows, data_set.pk, schema.pk)  # CELERY task
+        data_set.status = 'Processing'
+        data_set.save()
+
+    elif request.method == 'GET':
+        schema = Schema.objects.get(pk=schema_pk)
+
     data_sets = DataSet.objects.filter(schema=schema)
     return render(request, 'data_sets/data_sets_base.html', {
         'data_sets': data_sets,
@@ -33,7 +50,7 @@ def data_set_view(request, schema_pk):
 
 
 def add_column(request):
-    """"""
+    """it works when user push ADD button in new schema view"""
     name = request.user.username
     if request.method == 'POST':
         schema = Schema.objects.filter(creator=request.user).last()
@@ -69,7 +86,7 @@ def add_column(request):
 
 
 def delete_column(request):
-    """"""
+    """it works when user push delete button in new schema view"""
     name = request.user.username
     if request.method == 'POST':
         schema = Schema.objects.filter(creator=request.user).last()
@@ -90,7 +107,7 @@ def delete_column(request):
 
 
 def new_schema(request):
-    """"""
+    """func that generate new schema view"""
     name = request.user.username
     if request.method == 'GET':
         schema = Schema.objects.create(creator=request.user)
@@ -106,29 +123,8 @@ def new_schema(request):
         })
 
 
-def generate(request):
-    """"""
-    name = request.user.username
-    if request.method == 'POST':
-        print(request.POST)
-        rows = request.POST['schema_rows']
-        schema_id = request.POST['schema_id']
-        schema = Schema.objects.get(pk=int(schema_id))
-
-        data_set = DataSet.objects.create(schema=schema, status='Create', rows=rows)
-
-        aggregate_schema(rows, data_set, schema)
-
-        data_sets = DataSet.objects.filter(schema=schema)
-        return render(request, 'data_sets/data_sets_base.html', {
-            'data_sets': data_sets,
-            'name': name,
-            'schema': schema,
-        })
-
-
 def submit_schema(request):
-    """"""
+    """func that save schema and load next page view"""
     name = request.user.username
     if request.method == 'POST':
         schema = Schema.objects.filter(creator=request.user).last()
@@ -181,5 +177,5 @@ def download_data_set(request):
         fl = open(full_path, 'r')
         mime_type, _ = mimetypes.guess_type(full_path)
         response = HttpResponse(fl, content_type=mime_type)
-        response['Content-Disposition'] = "attachment; filename=%s" % filename
+        response['Content-Disposition'] = "attachment; filename=%s" % data_set.file_name
         return response
