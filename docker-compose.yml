@@ -56,8 +56,8 @@ services:
       - web-root:/var/www/html
     depends_on:
       - nginx
-    command: certonly --webroot --webroot-path=/var/www/html --email maksym.yankevych@gmail.com --agree-tos --no-eff-email -d maksfdg.tk
-#    command: renew --dry-run
+#    command: certonly --webroot --webroot-path=/var/www/html --email maksym.yankevych@gmail.com --agree-tos --no-eff-email -d maksfdg.tk
+    command: renew
 
   redis:
     image: redis:5

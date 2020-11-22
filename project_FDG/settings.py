@@ -22,9 +22,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'fpfc%syn+ts5l3$d^v3*+@keyztsv0e2vd(++eh1_3%74!c*68'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 DEV_MODE = False  # True
-ALLOWED_HOSTS = ['159.89.102.150']
+ALLOWED_HOSTS = ['159.89.102.150', 'maksfdg.tk']
 LOGIN_REDIRECT_URL = 'schemas/'
 LOGOUT_REDIRECT_URL = '/'
 # Application definition
@@ -87,7 +87,7 @@ WSGI_APPLICATION = 'project_FDG.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'project_FDG',
+        'NAME': 'project_FDG_DB',
         'USER': 'project_FDG_USER',
         'PASSWORD': 'project_FDG_PASS',
         'HOST': 'postgres',
