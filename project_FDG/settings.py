@@ -24,7 +24,7 @@ SECRET_KEY = 'fpfc%syn+ts5l3$d^v3*+@keyztsv0e2vd(++eh1_3%74!c*68'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 DEV_MODE = False  # True
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['159.89.102.150']
 LOGIN_REDIRECT_URL = 'schemas/'
 LOGOUT_REDIRECT_URL = '/'
 # Application definition
