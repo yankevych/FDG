@@ -4,22 +4,33 @@ from .models import ColumnItem
 from faker import Faker
 
 
-def aggregate_schema(rows, empty_schemas):
+def aggregate_schema(rows, data_set, schema):
     """method that first catch all data to start generate data"""
-    print('66')
     print(rows)
-    for schema in empty_schemas:
-        print('11')
-        with open(f'media/{schema.name}{schema.pk}.csv', 'w', newline='') as f:
-            print('1223333')
-            fakewriter = csv.writer(f)
-            print(fakewriter)
-            print('22')
-            for i in range(0, int(rows)):
-                print(i)
-                columns = ColumnItem.objects.filter(schema=schema)
-                fakewriter.writerow(generate_row(columns))
-                i += 1
+    if schema.column_separator == 'Comma (,)':
+        delimiter = ','
+    else:
+        delimiter = '.'
+
+    if schema.string_character == 'Double-quote (")':
+        quotechar = '"'
+    else:
+        quotechar = "'"
+
+    columns = ColumnItem.objects.filter(schema=schema)
+    with open(f'media/{schema.name}_{schema.pk}_{data_set.pk}.csv', 'w', newline='') as f:
+        fakewriter = csv.writer(f, delimiter=delimiter, quotechar=quotechar)
+
+        headers_row = [column.column_name for column in columns]
+        fakewriter.writerow(headers_row)
+        print(headers_row)
+        for i in range(0, int(rows)):
+            fakewriter.writerow(generate_row(columns))
+            i += 1
+
+    data_set.status = 'Ready'
+    data_set.file_name = f'{schema.name}_{schema.pk}_{data_set.pk}.csv'
+    data_set.save()
 
 
 def generate_row(columns):

@@ -24,5 +24,12 @@ urlpatterns = [
     path('schemas/', views.schema_view, name="schema_base"),
     path('new_schema/', views.new_schema, name="new_schema"),
     path('data_sets/', views.submit_schema, name="submit_schema"),
+    path('data_sets/<int:schema_pk>/', views.data_set_view, name="data_set_view"),
+    path('edit_schema/', views.edit_schema, name="edit_schema"),
+    path('delete_schema/', views.delete_schema, name="delete_schema"),
+    path('add_column/', views.add_column, name="add_column"),
+    path('delete_column/', views.delete_column, name="delete_column"),
+    path('generate/', views.generate, name="generate"),
+    path('download/', views.download_data_set, name="download_data_set"),
 
 ]

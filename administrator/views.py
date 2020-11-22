@@ -1,77 +1,185 @@
+import mimetypes
+
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from .models import Schema, ColumnItem
+from .models import Schema, ColumnItem, DataSet
 from .generator import aggregate_schema
+
+COLUMNS = [i[1] for i in Schema.SEPARATORS]
+STRINGS = [i[1] for i in Schema.STRINGS]
+TYPES = [i[1] for i in ColumnItem.TYPES]
+
+STATUSES = [i[1] for i in DataSet.STATUS]
 
 
 def schema_view(request):
     schema_list = Schema.objects.all()
-    return render(request, 'schema/schema_base.html', {'schema_list': schema_list})
+    name = request.user.username
+    return render(request, 'schema/schema_base.html', {
+        'schema_list': schema_list,
+        'name': name,
+    })
 
 
-def new_schema(request):
+def data_set_view(request, schema_pk):
+    name = request.user.username
+    schema = Schema.objects.get(pk=schema_pk)
+    data_sets = DataSet.objects.filter(schema=schema)
+    return render(request, 'data_sets/data_sets_base.html', {
+        'data_sets': data_sets,
+        'name': name,
+        'schema': schema,
+    })
+
+
+def add_column(request):
     """"""
-    columns = [i[1] for i in Schema.SEPARATORS]
-    strings = [i[1] for i in Schema.STRINGS]
-    types = [i[1] for i in ColumnItem.TYPES]
+    name = request.user.username
     if request.method == 'POST':
         schema = Schema.objects.filter(creator=request.user).last()
 
-        ColumnItem.objects.create(
+        column = ColumnItem.objects.create(
             schema=schema,
             column_type=request.POST['column_type'],
             column_name=request.POST['column_name'],
             order=request.POST['column_order'],
-            range_from=request.POST['column_from'],
-            range_to=request.POST['column_to'],
         )
+        try:
+            if request.POST['column_from']:
+                column.range_from = request.POST['column_from']
+            if request.POST['column_to']:
+                column.range_to = request.POST['column_to']
+        except ValueError:
+            if request.POST['column_to']:
+                column.range_to = request.POST['column_to']
+        else:
+            pass
+
+        column.save()
 
         schema_columns = ColumnItem.objects.filter(schema=schema)
+        return render(request, 'new_schema/new_schema_base.html', {
+            'column_list': COLUMNS,
+            'string_list': STRINGS,
+            'schema_columns': schema_columns,
+            'types': TYPES,
+            'name': name,
+            'schema': schema,
+        })
 
-    else:
+
+def delete_column(request):
+    """"""
+    name = request.user.username
+    if request.method == 'POST':
+        schema = Schema.objects.filter(creator=request.user).last()
+
+        column_id = request.POST['column_id']
+        column = ColumnItem.objects.get(pk=int(column_id))
+        column.delete()
+
+        schema_columns = ColumnItem.objects.filter(schema=schema)
+        return render(request, 'new_schema/new_schema_base.html', {
+            'column_list': COLUMNS,
+            'string_list': STRINGS,
+            'schema_columns': schema_columns,
+            'types': TYPES,
+            'name': name,
+            'schema': schema,
+        })
+
+
+def new_schema(request):
+    """"""
+    name = request.user.username
+    if request.method == 'GET':
         schema = Schema.objects.create(creator=request.user)
         schema_columns = ColumnItem.objects.filter(schema=schema)
 
-    return render(request, 'new_schema/new_schema_base.html', {
-        'column_list': columns,
-        'string_list': strings,
-        'schema_columns': schema_columns,
-        'types': types,
-    })
+        return render(request, 'new_schema/new_schema_base.html', {
+            'column_list': COLUMNS,
+            'string_list': STRINGS,
+            'schema_columns': schema_columns,
+            'types': TYPES,
+            'name': name,
+            'schema': schema,
+        })
+
+
+def generate(request):
+    """"""
+    name = request.user.username
+    if request.method == 'POST':
+        print(request.POST)
+        rows = request.POST['schema_rows']
+        schema_id = request.POST['schema_id']
+        schema = Schema.objects.get(pk=int(schema_id))
+
+        data_set = DataSet.objects.create(schema=schema, status='Create', rows=rows)
+
+        aggregate_schema(rows, data_set, schema)
+
+        data_sets = DataSet.objects.filter(schema=schema)
+        return render(request, 'data_sets/data_sets_base.html', {
+            'data_sets': data_sets,
+            'name': name,
+            'schema': schema,
+        })
 
 
 def submit_schema(request):
     """"""
-    # if request.method == 'POST' and not request.POST['schema_rows']:
+    name = request.user.username
     if request.method == 'POST':
-        print('11')
-        try:
-            print('22')
-            rows = request.POST['schema_rows']
-            print(rows)
-            print('223')
-            empty_schemas = Schema.objects.filter(creator=request.user, status='Create')
-            print(empty_schemas)
-            aggregate_schema(rows, empty_schemas)
-        except:
-            print('33')
-            schema = Schema.objects.filter(creator=request.user).last()
-            schema.name = request.POST['schema_name']
-            schema.column_separator = request.POST['schema_separator']
-            schema.string_character = request.POST['schema_string']
-            schema.save()
-        finally:
-            schemas = Schema.objects.filter(creator=request.user)
-            return render(request, 'data_sets/data_sets_base.html', {
-                'schemas': schemas,
-            })
-    # elif request.method == 'POST' and request.POST['schema_rows']:
+        schema = Schema.objects.filter(creator=request.user).last()
+        schema.name = request.POST['schema_name']
+        schema.column_separator = request.POST['schema_separator']
+        schema.string_character = request.POST['schema_string']
+        schema.save()
+
+        data_sets = DataSet.objects.filter(schema=schema)
+        return render(request, 'data_sets/data_sets_base.html', {
+            'data_sets': data_sets,
+            'name': name,
+            'schema': schema,
+        })
 
 
-    else:
-        pass
+def delete_schema(request):
+    """func that DELETE schema after pressed button"""
+    if request.method == 'POST':
+        schema_id = request.POST['schema_id']
+        schema = Schema.objects.get(pk=int(schema_id))
+        schema.delete()
+        print('del')
+    return schema_view(request)
 
 
+def edit_schema(request):
+    """func that EDIT schema after pressed button"""
+    name = request.user.username
+    if request.method == 'POST':
+        schema_id = request.POST['schema_id']
+        schema = Schema.objects.get(pk=int(schema_id))
+        schema_columns = ColumnItem.objects.filter(schema=schema)
+        return render(request, 'new_schema/new_schema_base.html', {
+            'column_list': COLUMNS,
+            'string_list': STRINGS,
+            'schema_columns': schema_columns,
+            'types': TYPES,
+            'name': name,
+        })
 
 
+def download_data_set(request):
+    """function that generate response to download the csv data-set"""
+    if request.method == 'POST':
+        data_set_id = request.POST['data_set_id']
+        data_set = DataSet.objects.get(pk=data_set_id)
 
-
+        full_path = 'media/' + data_set.file_name
+        fl = open(full_path, 'r')
+        mime_type, _ = mimetypes.guess_type(full_path)
+        response = HttpResponse(fl, content_type=mime_type)
+        response['Content-Disposition'] = "attachment; filename=%s" % filename
+        return response

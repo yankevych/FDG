@@ -14,20 +14,11 @@ class Schema(models.Model):
         ("Single-quote (')", "Single-quote (')")
     ]
 
-    STATUS = [
-        ('Ready', 'Ready'),
-        ('Processing', 'Processing'),
-        ('Create', 'Create')
-    ]
-
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     column_separator = models.CharField(max_length=50, null=True, blank=True, choices=SEPARATORS)
     string_character = models.CharField(max_length=50, null=True, blank=True, choices=STRINGS)
     name = models.CharField(max_length=50, null=True, blank=True)
     modified = models.DateField(auto_now=True)
-    rows = models.PositiveSmallIntegerField(null=True, blank=True)
-    status = models.CharField(max_length=20, default='Create', choices=STATUS)
-    file_path = models.CharField(max_length=100, null=True, blank=True)
 
 
 class ColumnItem(models.Model):
@@ -48,5 +39,17 @@ class ColumnItem(models.Model):
     range_to = models.PositiveIntegerField(null=True, blank=True, default=2147483647)
 
 
+class DataSet(models.Model):
+    """model that contain data-sets"""
+    STATUS = [
+        ('Ready', 'Ready'),
+        ('Processing', 'Processing'),
+        ('Create', 'Create')
+    ]
+    schema = models.ForeignKey(Schema, on_delete=models.CASCADE, verbose_name="Schema")
+    created = models.DateField(auto_now=True)
+    rows = models.PositiveSmallIntegerField(null=True, blank=True)
+    status = models.CharField(max_length=20, default='Create', choices=STATUS)
+    file_name = models.CharField(max_length=100, null=True, blank=True)
 
 

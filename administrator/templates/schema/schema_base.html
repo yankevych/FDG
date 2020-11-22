@@ -7,49 +7,49 @@
 <div class="container">
   <div class="row">
     <div class="col-sm">
-      Data schemas
+      <p class="navbar-brand" >Data schemas</p>
     </div>
     <div class="col-sm">
-      <a href='../new_schema/'>New schema</a>
+      <a class="btn btn-primary" href='../new_schema/'>New schema</a>
     </div>
   </div>
 </div>
 
-<div class="container">
-  <div class="row border">
-    <div class="col-sm">
-      #
-    </div>
-    <div class="col-sm">
-      Title
-    </div>
-    <div class="col-sm">
-      Modified
-    </div>
-      <div class="col-sm">
-      Actions
-    </div>
-  </div>
-</div>
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Title</th>
+      <th scope="col">Modified</th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for i in schema_list %}
+    <tr>
+      <th scope="row"> {{i.pk}}</th>
+      <td><a href='../data_sets/{{i.pk}}'>{{i.name}}</a></td>
+      <td>{{i.modified}}</td>
+      <td>
+         <form action="../edit_schema/" method="post">
+           {% csrf_token %}
+           <input type="hidden" name="schema_id" value={{i.pk}} />
+           <button class="btn btn-primary">Edit</button>
+         </form>
+         <form action="../delete_schema/" method="post">
+           {% csrf_token %}
+           <input type="hidden" name="schema_id" value={{i.pk}} />
+           <button class="btn btn-primary">Delete</button>
+         </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
 
-        {% for i in schema_list %}
-        <div class="container">
-          <div class="row border">
-            <div class="col-sm">
-              {{i.pk}}
-            </div>
-            <div class="col-sm">
-              {{i.name}}
-            </div>
-            <div class="col-sm">
-              {{i.modified}}
-            </div>
-              <div class="col-sm">
-              <a href=#>Edit scheme</a>
-              <a href=#>Delete</a>
-            </div>
-          </div>
-        </div>
-        {% endfor %}
+
+
+
+
 
 {% endblock %}
