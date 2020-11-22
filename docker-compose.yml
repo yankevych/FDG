@@ -60,7 +60,7 @@ services:
 #    command: renew --dry-run
 
   redis:
-    image: redis:latest
+    image: redis:5
     restart: always
     volumes:
       - ./docker/redis/etc/redis.conf:/data/redis/redis.conf
