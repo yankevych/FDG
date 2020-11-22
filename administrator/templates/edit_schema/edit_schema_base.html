@@ -9,22 +9,23 @@
 <div class="container">
   <div class="row">
     <div class="col-sm">
-      <h2>New schema</h2>
+      <h2>Edit schema</h2>
     </div>
     <div class="col-sm">
+          <input type="hidden" name="schema_id" value={{schema.pk}} />
         <button class="btn btn-primary" type="submit">Submit</button>
     </div>
   </div>
 </div>
 
     <div class="col-md-6 mb-3">
-      <label for="Name">First name</label>
-      <input type="text" class="form-control" id="Name" name="schema_name" placeholder="" value="" required="">
+      <label for="Name">Name</label>
+      <input type="text" class="form-control" id="Name" name="schema_name" placeholder="" value="{{schema.name}}" required="">
     </div>
     <div class="col-md-5 mb-3">
       <label for="Column separator">Column separator</label>
-      <select class="custom-select d-block w-100" name="schema_separator" id="Column separator" required="">
-        <option value="">Choose...</option>
+      <select class="custom-select d-block w-100" name="schema_separator" id="Column separator">
+        <option value="">{{schema.column_separator}}</option>
         {% for i in column_list %}
           <option>{{i}}</option>
         {% endfor %}
@@ -32,8 +33,8 @@
     </div>
   <div class="col-md-5 mb-3">
       <label for="String character">String character</label>
-      <select class="custom-select d-block w-100" name="schema_string" id="String character" required="">
-        <option value="">Choose...</option>
+      <select class="custom-select d-block w-100" name="schema_string" id="String character">
+        <option value="">{{schema.string_character}}</option>
         {% for i in string_list %}
           <option>{{i}}</option>
         {% endfor %}
@@ -61,26 +62,32 @@
           <label for="Type">Type</label>
           <p type="text" class="form-control" id="Type" >{{i.column_type}}</p>
         </div>
+        {% if  i.column_type == 'Integer'%}
         <div class="col-sm">
           <label for="From">From</label>
-          <p type="text" class="form-control" id="From" > </p>
+          <p type="number" class="form-control" id="From" >{{i.range_from}}</p>
         </div>
         <div class="col-sm">
           <label for="To">To</label>
-          <p type="text" class="form-control" id="To" > </p>
+          <p type="number" class="form-control" id="To" >{{i.range_to}}</p>
         </div>
+        {% endif %}
         <div class="col-sm">
           <label for="Order">Order</label>
-          <p type="text" class="form-control" id="Order" >{{i.order}}</p>
+          <p type="number" class="form-control" id="Order" >{{i.order}}</p>
         </div>
         <div class="col-sm">
-          <a href=#>Delete</a>
+          <form action="../delete_column/" method="post">
+           {% csrf_token %}
+           <input type="hidden" name="column_id" value={{i.pk}} />
+           <button class="btn btn-primary">Delete</button>
+         </form>
         </div>
       </div>
     </div>
   {% endfor %}
 
-<form class="container border" method="POST">
+<form class="container border" action="../add_column/" method="POST">
   {% csrf_token %}
   <div class="row">
     <div class="col-sm">
@@ -98,15 +105,15 @@
     </div>
     <div class="col-sm">
       <label for="From1">From</label>
-      <input type="text" class="form-control" name="column_from" id="From1" required="">
+      <input type="number" class="form-control" name="column_from" id="From1">
     </div>
     <div class="col-sm">
       <label for="To1">To</label>
-      <input type="text" class="form-control" name="column_to" id="To1" required="">
+      <input type="number" class="form-control" name="column_to" id="To1">
     </div>
     <div class="col-sm">
       <label for="Order1">Order</label>
-      <input type="text" class="form-control" name="column_order" id="Order1" required="">
+      <input type="number" class="form-control" name="column_order" id="Order1" required="">
     </div>
   </div>
   <hr>

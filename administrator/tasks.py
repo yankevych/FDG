@@ -10,7 +10,7 @@ from faker import Faker
 
 @app.task
 def aggregate_schema(*args):
-    """method that first catch all data to start generate data"""
+    """method that catch all data to start generate data"""
     print(args)
     rows, data_set_pk, schema_pk = args
 

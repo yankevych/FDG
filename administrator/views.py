@@ -27,7 +27,6 @@ def data_set_view(request, schema_pk):
     name = request.user.username
 
     if request.method == 'POST':
-        print(request.POST)
         rows = request.POST['schema_rows']
         schema_id = request.POST['schema_id']
         schema = Schema.objects.get(pk=int(schema_id))
@@ -147,7 +146,6 @@ def delete_schema(request):
         schema_id = request.POST['schema_id']
         schema = Schema.objects.get(pk=int(schema_id))
         schema.delete()
-        print('del')
     return schema_view(request)
 
 
@@ -158,13 +156,15 @@ def edit_schema(request):
         schema_id = request.POST['schema_id']
         schema = Schema.objects.get(pk=int(schema_id))
         schema_columns = ColumnItem.objects.filter(schema=schema)
-        return render(request, 'new_schema/new_schema_base.html', {
-            'column_list': COLUMNS,
-            'string_list': STRINGS,
-            'schema_columns': schema_columns,
-            'types': TYPES,
-            'name': name,
-        })
+        return render(request, 'edit_schema/edit_schema_base.html', {
+                'column_list': COLUMNS,
+                'string_list': STRINGS,
+                'schema_columns': schema_columns,
+                'types': TYPES,
+                'name': name,
+                'schema': schema,
+            })
+
 
 
 def download_data_set(request):
