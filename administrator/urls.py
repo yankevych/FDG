@@ -16,8 +16,11 @@ Including another URLconf
 
 from django.urls import path
 from . import views
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
+    path('', auth_views.LoginView.as_view(template_name='admin/login.html', redirect_authenticated_user=True)),
+    path('logout/', auth_views.LogoutView.as_view()),
     path('schemas/', views.schema_view, name="schema_base"),
     path('new_schema/', views.new_schema, name="new_schema"),
     path('data_sets/', views.submit_schema, name="submit_schema"),

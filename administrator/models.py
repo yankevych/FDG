@@ -2,23 +2,6 @@ from django.conf import settings
 from django.db import models
 
 
-# class User(models.Model):
-#     """main user model"""
-#     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-
-
-# class FakeData(models.Model):
-#     """model where we generate all fake data"""
-#     name = models.CharField(max_length=50, null=True, blank=True)
-#     surname = models.CharField(max_length=50, null=True, blank=True)
-#     integer = models.BigIntegerField()
-#     range_from = models.PositiveSmallIntegerField(null=True, blank=True)
-#     range_to = models.PositiveSmallIntegerField(null=True, blank=True)
-#     job = models.CharField(max_length=20, null=True, blank=True)
-#     company_name = models.CharField(max_length=100, null=True, blank=True)
-#     date = models.DateField(default='')
-
-
 class Schema(models.Model):
     """schema model"""
     SEPARATORS = [
@@ -63,7 +46,6 @@ class ColumnItem(models.Model):
     order = models.PositiveSmallIntegerField(null=True, blank=True)
     range_from = models.PositiveIntegerField(null=True, blank=True, default=0)
     range_to = models.PositiveIntegerField(null=True, blank=True, default=2147483647)
-    # data = models.ForeignKey(FakeData,  on_delete=models.CASCADE, verbose_name="FakeData")
 
 
 

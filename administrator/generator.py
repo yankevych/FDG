@@ -1,10 +1,6 @@
 import csv
 import random
-from calendar import calendar
-from datetime import date
 from .models import ColumnItem
-import requests
-import names
 from faker import Faker
 
 
@@ -14,20 +10,20 @@ def aggregate_schema(rows, empty_schemas):
     print(rows)
     for schema in empty_schemas:
         print('11')
-        with open(f'{schema.name}{schema.pk}.csv', 'w', newline='') as f:
+        with open(f'media/{schema.name}{schema.pk}.csv', 'w', newline='') as f:
             print('1223333')
-            spamwriter = csv.writer(f)
-            print(spamwriter)
+            fakewriter = csv.writer(f)
+            print(fakewriter)
             print('22')
             for i in range(0, int(rows)):
                 print(i)
                 columns = ColumnItem.objects.filter(schema=schema)
-                spamwriter.writerow(generate_row(columns))
+                fakewriter.writerow(generate_row(columns))
                 i += 1
 
 
 def generate_row(columns):
-    """method generates one row"""
+    """method generates one fake row and return it to main"""
     print('55')
 
     row_list = []
