@@ -56,4 +56,3 @@ def aggregate_schema(*args):
     data_set.status = 'Ready'
 
     return data_set.save()
-    # return requests.post('http://127.0.0.1:8000/gen_ready/', data={'data_set_pk': data_set.pk})

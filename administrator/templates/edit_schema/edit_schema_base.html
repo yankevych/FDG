@@ -96,18 +96,18 @@
     </div>
     <div class="col-sm">
       <label for="Type1">Type</label>
-      <select class="custom-select d-block w-100" name="column_type" id="Type1" required="">
+      <select class="custom-select d-block w-100" name="column_type" id="Type1" required="" onclick="integer_vis()">
         <option value="">Choose...</option>
         {% for i in types %}
           <option>{{i}}</option>
         {% endfor %}
       </select>
     </div>
-    <div class="col-sm">
+    <div class="col-sm" style="display: none" id="visib">
       <label for="From1">From</label>
       <input type="number" class="form-control" name="column_from" id="From1">
     </div>
-    <div class="col-sm">
+    <div class="col-sm" style="display: none" id="visib1">
       <label for="To1">To</label>
       <input type="number" class="form-control" name="column_to" id="To1">
     </div>
@@ -120,5 +120,24 @@
   <button class="btn btn-primary" type="submit">Add column</button>
 </form>
 
+<script>
+function integer_vis() {
+
+var selected = document.getElementById('Type1')
+const content = selected.value
+console.log(content)
+if(content === 'Integer'){
+  var visib = document.getElementById('visib')
+  visib.style.display = 'inline'
+  var visib1 = document.getElementById('visib1')
+  visib1.style.display = 'inline'
+} else {
+  var visib = document.getElementById('visib')
+  visib.style.display = 'none'
+  var visib1 = document.getElementById('visib1')
+  visib1.style.display = 'none'
+}
+}
+</script>
 
 {% endblock %}
