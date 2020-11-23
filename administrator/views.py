@@ -14,7 +14,7 @@ STATUSES = [i[1] for i in DataSet.STATUS]
 
 def schema_view(request):
     """first menu view"""
-    schema_list = Schema.objects.all(creator=request.user)
+    schema_list = Schema.objects.filter(creator=request.user)
     name = request.user.username
     return render(request, 'schema/schema_base.html', {
         'schema_list': schema_list,
