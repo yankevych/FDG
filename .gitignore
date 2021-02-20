@@ -3,6 +3,7 @@ __pycache__/
 fdg_env/
 media/
 admistrator/migrations/
+keys.sh
 
 
 
