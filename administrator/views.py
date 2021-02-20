@@ -2,6 +2,7 @@ import mimetypes
 
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.db import transaction
 from .models import Schema, ColumnItem, DataSet
 from .tasks import aggregate_schema
 
@@ -33,7 +34,7 @@ def data_set_view(request, schema_pk):
 
         data_set = DataSet.objects.create(schema=schema, status='Create', rows=rows)
 
-        aggregate_schema.delay(rows, data_set.pk, schema.pk)  # CELERY task
+        transaction.on_commit(lambda: aggregate_schema.delay(rows, data_set.pk, schema.pk))  # CELERY task
         data_set.status = 'Processing'
         data_set.save()
 
@@ -164,7 +165,6 @@ def edit_schema(request):
                 'name': name,
                 'schema': schema,
             })
-
 
 
 def download_data_set(request):
